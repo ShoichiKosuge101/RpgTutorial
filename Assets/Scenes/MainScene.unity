@@ -3306,6 +3306,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5987b9cf8a25b16498c0cde8b1ada6bb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  playerController: {fileID: 1683270812}
+  enemyController: {fileID: 1171324736}
 --- !u!4 &1662047880
 Transform:
   m_ObjectHideFlags: 0
