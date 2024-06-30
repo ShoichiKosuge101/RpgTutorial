@@ -14,11 +14,15 @@ namespace PlayerState
         : IState
     {
         private readonly Random _random = new Random();
+        private EnemyController EnemyController => RpgGameManager.Instance.EnemyController;
 
         public async UniTask EnterAsync()
         {
             Debug.Log("<color=green>EnemyTurnState Enter</color>");
             RpgGameManager.Instance.IncrementEnemyTurnCount();
+            
+            // 防御力の更新
+            EnemyController.UpdateDefenseState();
             
             // 適当にwait
             await UniTask.Delay(1000);

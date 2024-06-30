@@ -6,12 +6,18 @@ using Utils;
 
 namespace Controller
 {
+    /// <summary>
+    /// プレイヤーのコントローラー
+    /// </summary>
     public class PlayerController
         : ControllerBase
     {
         [SerializeField]
         private PlayerData playerData;
 
+        /// <summary>
+        /// 初期化処理
+        /// </summary>
         private void Start()
         {
             BaseParam = playerData.BaseParam;
@@ -21,6 +27,10 @@ namespace Controller
             SendStatus(CurrentParam, true);
         }
         
+        /// <summary>
+        /// プレイヤーの攻撃処理
+        /// </summary>
+        /// <param name="enemyController"></param>
         public override async UniTask AttackAsync(ControllerBase enemyController)
         {
             if (enemyController == null)
@@ -34,15 +44,10 @@ namespace Controller
             await enemyController.TakeDamage(damage);
         }
         
-        public override async UniTask DefendAsync()
-        {
-            SendLog("Player Defend");
-            // 防御力を上げる処理
-            
-            // 適当にawait
-            await UniTask.CompletedTask;
-        }
-        
+        /// <summary>
+        /// プレイヤーのダメージ処理
+        /// </summary>
+        /// <param name="damage"></param>
         public override async UniTask TakeDamage(int damage)
         {
             // damageを防御力で減らす
@@ -62,6 +67,9 @@ namespace Controller
             }
         }
 
+        /// <summary>
+        /// プレイヤーの死亡処理
+        /// </summary>
         private static async UniTask DeadAsync()
         {
             // 終了処理を呼ぶ

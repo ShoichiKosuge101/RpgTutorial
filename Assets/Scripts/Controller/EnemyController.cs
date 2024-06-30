@@ -8,6 +8,9 @@ using Utils;
 
 namespace Controller
 {
+    /// <summary>
+    /// 敵のコントローラー
+    /// </summary>
     public class EnemyController
         : ControllerBase
     {
@@ -20,6 +23,9 @@ namespace Controller
         [SerializeField]
         private float fadeTime = 3f;
         
+        /// <summary>
+        /// 初期化処理
+        /// </summary>
         private void Start()
         {
             enemyIcon.sprite = enemyData.Sprite;
@@ -30,6 +36,10 @@ namespace Controller
             SendStatus(enemyData.BaseParam, false);
         }
         
+        /// <summary>
+        /// 敵の攻撃処理
+        /// </summary>
+        /// <param name="playerController"></param>
         public override async UniTask AttackAsync(ControllerBase playerController)
         {
             if (playerController == null)
@@ -42,15 +52,10 @@ namespace Controller
             await playerController.TakeDamage(CurrentParam.Attack);
         }
         
-        public override async UniTask DefendAsync()
-        {
-            SendLog("Enemy Defend");
-            // 防御力を上げる処理
-            
-            // 適当にawait
-            await UniTask.CompletedTask;
-        }
-        
+        /// <summary>
+        /// 敵のダメージ処理
+        /// </summary>
+        /// <param name="damage"></param>
         public override async UniTask TakeDamage(int damage)
         {
             // damageを防御力で減らす
@@ -62,12 +67,16 @@ namespace Controller
             SendLog($"Enemy Take Damage: {damage}");
             SendStatus(CurrentParam, false);
             
+            // HPが0以下になったら死亡処理
             if(CurrentParam.Hp <= 0)
             {
                 await DeadAsync();
             }
         }
         
+        /// <summary>
+        /// 敵の死亡処理
+        /// </summary>
         private async UniTask DeadAsync()
         {
             await UniTask.DelayFrame(1);

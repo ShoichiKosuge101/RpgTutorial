@@ -16,6 +16,8 @@ namespace PlayerState
     {
         private readonly CompositeDisposable _disposable = new ();
         
+        private PlayerController PlayerController => RpgGameManager.Instance.PlayerController;
+        
         public async UniTask EnterAsync()
         {
             Debug.Log("<color=green>PlayerTurnState Enter</color>");
@@ -23,6 +25,9 @@ namespace PlayerState
             // ターン加算処理
             RpgGameManager.Instance.IncrementTurnCount();
             RpgGameManager.Instance.IncrementPlayerTurnCount();
+            
+            // 防御力ボーナスの判定
+            PlayerController.UpdateDefenseState();
             
             // ボタンのタップを購読
             // 毎回の購読解除はExitAsyncで行う
