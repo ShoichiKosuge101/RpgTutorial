@@ -7,56 +7,45 @@ using UnityEngine;
 namespace MoveState
 {
     public class AttackState
-        : IActionState
+        : ActionBase
     {
-        private readonly PlayerController _playerController;
-        private readonly EnemyController _enemyController;
         private readonly bool _isPlayer;
 
         public AttackState(
-            PlayerController playerController, 
-            EnemyController enemyController, 
             bool isPlayer
             )
         {
-            _playerController = playerController;
-            _enemyController = enemyController;
             _isPlayer = isPlayer;
         }
         
-        public async UniTask EnterAsync()
+        public override async UniTask EnterAsync()
         {
             Debug.Log("<color=cyan>AttackState Enter</color>");
             if(_isPlayer)
             {
                 // nullチェック
-                if (_playerController == null)
+                if (PlayerController == null)
                 {
                     Debug.Log("Player is Empty");
                     return;
                 }
                 
-                await _playerController.AttackAsync(_enemyController);
+                await PlayerController.AttackAsync(EnemyController);
             }
             else
             {
                 // nullチェック
-                if (_enemyController == null)
+                if (EnemyController == null)
                 {
                     Debug.Log("Enemy is Empty");
                     return;
                 }
                 
-                await _enemyController.AttackAsync(_playerController);
+                await EnemyController.AttackAsync(PlayerController);
             }
         }
 
-        public async UniTask ExecuteAsync()
-        {
-            await UniTask.CompletedTask;
-        }
-
-        public async UniTask ExitAsync()
+        public override async UniTask ExitAsync()
         {
             Debug.Log("<color=cyan>AttackState Exit</color>");
             

@@ -34,7 +34,7 @@ namespace Controller
             await enemyController.TakeDamage(damage);
         }
         
-        public override async UniTask DefendAsync(ControllerBase enemyController)
+        public override async UniTask DefendAsync()
         {
             SendLog("Player Defend");
             // 防御力を上げる処理

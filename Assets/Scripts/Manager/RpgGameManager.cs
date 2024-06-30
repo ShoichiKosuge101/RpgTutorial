@@ -32,6 +32,15 @@ namespace Manager
         public EnemyController EnemyController => enemyController;
 
         private bool _isGameOver;
+
+        private int _turnCount = 0;
+        public int TurnCount => _turnCount;
+        
+        private int _playerTurnCount = 0;
+        public int PlayerTurnCount => _playerTurnCount;
+        
+        private int _enemyTurnCount = 0;
+        public int EnemyTurnCount => _enemyTurnCount;
         
         /// <summary>
         /// シングルトン化
@@ -140,6 +149,21 @@ namespace Manager
                     break;
             }
             UIManager.Instance.SetState(currentState);
+        }
+        
+        public void IncrementTurnCount()
+        {
+            _turnCount++;
+        }
+        
+        public void IncrementPlayerTurnCount()
+        {
+            _playerTurnCount++;
+        }
+        
+        public void IncrementEnemyTurnCount()
+        {
+            _enemyTurnCount++;
         }
         
         public void SetGameOver()

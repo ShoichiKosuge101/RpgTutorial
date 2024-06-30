@@ -20,12 +20,12 @@ namespace Controller
             await UniTask.DelayFrame(1);
         }
         
-        public virtual async UniTask DefendAsync(ControllerBase target)
+        public virtual async UniTask DefendAsync()
         {
             await UniTask.DelayFrame(1);
         }
         
-        public virtual async UniTask HealAsync(ControllerBase target)
+        public virtual async UniTask HealAsync()
         {
             bool isPlayer = this is PlayerController;
             
