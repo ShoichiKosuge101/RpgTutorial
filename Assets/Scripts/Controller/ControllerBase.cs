@@ -37,14 +37,14 @@ namespace Controller
             SendStatus(CurrentParam, isPlayer);
 
             string textPattern = isPlayer 
-                ? $"<color=yellow> Player Heal: {healVal}</color>" 
-                : $"<color=red>Enemy Heal: {healVal}</color>";
+                ? $"Player Heal: {healVal}" 
+                : $"Enemy Heal: {healVal}";
             SendLog($"{textPattern}");
 
             // 適当にawait
             if (isPlayer)
             {
-                await UniTask.WaitForSeconds(2);
+                await UniTask.WaitForSeconds(1);
             }
         }
         

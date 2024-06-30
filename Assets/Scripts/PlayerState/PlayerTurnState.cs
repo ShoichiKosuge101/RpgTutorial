@@ -17,17 +17,18 @@ namespace PlayerState
         
         private readonly PlayerController _playerController = RpgGameManager.Instance.PlayerController;
         private readonly EnemyController _enemyController = RpgGameManager.Instance.EnemyController;
-
-        public PlayerTurnState()
+        
+        public async UniTask EnterAsync()
         {
-            _disposable.Clear();
+            Debug.Log("<color=green>PlayerTurnState Enter</color>");
             
             // ボタンのタップを購読
+            // 毎回の購読解除はExitAsyncで行う
             UIManager.Instance.OnClickPlayerActionButton
                 .ToUniTaskAsyncEnumerable()
                 .SubscribeAwait(async _ =>
                 {
-                    await ChooseAction(new AttackState(_playerController, _enemyController, true));
+                    await ChooseActionAsync(new AttackState(_playerController, _enemyController, true));
                 })
                 .AddTo(_disposable);
             
@@ -35,7 +36,7 @@ namespace PlayerState
                 .ToUniTaskAsyncEnumerable()
                 .SubscribeAwait(async _ =>
                 {
-                    await ChooseAction(new DefenseState(_playerController, _enemyController, true));
+                    await ChooseActionAsync(new DefenseState(_playerController, _enemyController, true));
                 })
                 .AddTo(_disposable);
             
@@ -43,30 +44,30 @@ namespace PlayerState
                 .ToUniTaskAsyncEnumerable()
                 .SubscribeAwait(async _ =>
                 {
-                    await ChooseAction(new HealState(_playerController, _enemyController, true));
+                    await ChooseActionAsync(new HealState(_playerController, _enemyController, true));
                 })
                 .AddTo(_disposable);
-        }
-        
-        public async UniTask EnterAsync()
-        {
-            Debug.Log("<color=green>PlayerTurnState Enter</color>");
             
             UIManager.Instance.SetActivePlayerActionButtons(true);
+
+            UIManager.Instance.ShowButtonWithTween();
             
             await UniTask.CompletedTask;
         }
         
-        private async UniTask ChooseAction(IActionState actionState)
+        private static async UniTask ChooseActionAsync(IActionState actionState)
         {
-            await actionState.Enter();
+            // 選択したので押せないようにする
+            UIManager.Instance.SetActivePlayerActionButtons(false);
             
-            EndPlayerTurn();
+            await actionState.EnterAsync();
+            
+            await EndPlayerTurnAsync();
         }
 
-        private static void EndPlayerTurn()
+        private static async UniTask EndPlayerTurnAsync()
         {
-            RpgGameManager.Instance.ChangeState(new EnemyTurnState());
+            await RpgGameManager.Instance.ChangeState(new EnemyTurnState());
         }
 
         public async UniTask ExecuteAsync()
@@ -78,7 +79,6 @@ namespace PlayerState
         {
             Debug.Log("<color=green>PlayerTurnState Exit</color>");
             
-            UIManager.Instance.SetActivePlayerActionButtons(false);
             _disposable.Clear();
             
             await UniTask.CompletedTask;

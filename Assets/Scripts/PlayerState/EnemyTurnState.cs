@@ -19,40 +19,36 @@ namespace PlayerState
         public async UniTask EnterAsync()
         {
             Debug.Log("<color=green>EnemyTurnState Enter</color>");
-            ChooseAction();
             
-            await UniTask.CompletedTask;
+            // 適当にwait
+            await UniTask.Delay(1000);
+            
+            await ChooseActionAsync();
         }
 
-        private void ChooseAction()
+        private async UniTask ChooseActionAsync()
         {
             int random = _random.Next(0, 3);
-            IActionState actionState = default;
-            switch (random)
+            IActionState actionState = random switch
             {
-                case 0:
-                    actionState = new AttackState(_playerController, _enemyController, false);
-                    break;
-                case 1:
-                    actionState = new DefenseState(_playerController, _enemyController, false);
-                    break;
-                case 2:
-                default:
-                    actionState = new HealState(_playerController, _enemyController, false);
-                    break;
-            }
-            actionState.Enter();
+                0 => new AttackState(_playerController, _enemyController, false),
+                1 => new DefenseState(_playerController, _enemyController, false),
+                2 => new HealState(_playerController, _enemyController, false),
+                _ => new HealState(_playerController, _enemyController, false)
+            };
+
+            await actionState.EnterAsync();
             
             // 敵のターン終了
-            EndEnemyTurn();
+            await EndEnemyTurnAsync();
         }
         
         /// <summary>
         /// 敵のターン終了
         /// </summary>
-        private static void EndEnemyTurn()
+        private static async UniTask EndEnemyTurnAsync()
         {
-            RpgGameManager.Instance.ChangeState(new PlayerTurnState());
+            await RpgGameManager.Instance.ChangeState(new PlayerTurnState());
         }
 
         public async UniTask ExecuteAsync()

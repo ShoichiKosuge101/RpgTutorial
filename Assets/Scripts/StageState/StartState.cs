@@ -9,14 +9,10 @@ namespace StageState
     public class StartState
         : IState
     {
-        public StartState()
-        {
-        }
-        
         public async UniTask EnterAsync()
         {
             Debug.Log("StartState Enter");
-            RpgGameManager.Instance.ChangeState(new PlayerTurnState());
+            await RpgGameManager.Instance.ChangeState(new PlayerTurnState());
             
             await UniTask.CompletedTask;
         }

@@ -1,8 +1,9 @@
 using System;
 using Controller;
+using Cysharp.Threading.Tasks;
 using Interface;
+using PlayerState;
 using StageState;
-using TMPro;
 using UniRx;
 using UnityEngine;
 using Utils;
@@ -19,8 +20,8 @@ namespace Manager
         
         private IState _currentState;
     
-        private readonly Subject<Unit> _onCurrentStateChanged = new Subject<Unit>();
-        public IObservable<Unit> OnCurrentStateChanged => _onCurrentStateChanged;
+        private readonly Subject<IState> _onCurrentStateChanged = new Subject<IState>();
+        public IObservable<IState> OnCurrentStateChanged => _onCurrentStateChanged;
         
         [SerializeField]
         private PlayerController playerController;
@@ -29,6 +30,8 @@ namespace Manager
         [SerializeField]
         private EnemyController enemyController;
         public EnemyController EnemyController => enemyController;
+
+        private bool _isGameOver;
         
         /// <summary>
         /// シングルトン化
@@ -48,27 +51,48 @@ namespace Manager
         
         private void Start()
         {
-            ChangeState(new StartState());
+            InitializeAsync().Forget();
         }
 
-        public void ChangeState(IState newState)
+        private async UniTask InitializeAsync()
         {
+            await ChangeState(new StartState());
+            // 初回更新
+            SetCurrentState(_currentState);
+            
+            // ログの初期化
+            UIManager.Instance.SetLog(string.Empty);
+            
+            // Stateの更新
+            _onCurrentStateChanged
+                .TakeUntilDestroy(this)
+                .Subscribe(SetCurrentState);
+        }
+
+        public async UniTask ChangeState(IState newState)
+        {
+            if (_isGameOver)
+            {
+                Debug.Log("Game Over");
+                return;
+            }
+            
             if(_currentState != null)
             {
-                _currentState.ExitAsync();
+                await _currentState.ExitAsync();
             }
         
             _currentState = newState;
-            _currentState.EnterAsync();
-        
-            _onCurrentStateChanged.OnNext(Unit.Default);
+            _onCurrentStateChanged.OnNext(newState);
+            
+            await _currentState.EnterAsync();
         }
     
         public void Update()
         {
             if(_currentState != null)
             {
-                _currentState.ExecuteAsync();
+                _currentState.ExecuteAsync().Forget();
             }
         }
         
@@ -81,9 +105,46 @@ namespace Manager
             UIManager.Instance.SetLog(message);
         }
         
+        /// <summary>
+        /// パラメータを設定する
+        /// </summary>
+        /// <param name="playerParam"></param>
+        /// <param name="isPlayer"></param>
         public void SetStatus(BaseParam playerParam, bool isPlayer)
         {
             UIManager.Instance.SetParam(playerParam, isPlayer);
+        }
+        
+        public void SetCurrentState(IState state)
+        {
+            string currentState;
+            switch (state)
+            {
+                case StartState _:
+                    currentState = "Start";
+                    break;
+                case PlayerTurnState _:
+                    currentState = "Player Turn";
+                    break;
+                case EnemyTurnState _:
+                    currentState = "Enemy Turn";
+                    break;
+                case GameOverState _:
+                    currentState = "Game Over";
+                    break;
+                case GameClearState _:
+                    currentState = "Game Clear";
+                    break;
+                default:
+                    currentState = "Executing";
+                    break;
+            }
+            UIManager.Instance.SetState(currentState);
+        }
+        
+        public void SetGameOver()
+        {
+            _isGameOver = true;
         }
     }   
 }

@@ -4,8 +4,8 @@ namespace MoveState.Interface
 {
     public interface IActionState
     {
-        UniTask Enter();
-        UniTask Execute();
-        UniTask Exit();
+        UniTask EnterAsync();
+        UniTask ExecuteAsync();
+        UniTask ExitAsync();
     }
 }

@@ -1,5 +1,6 @@
 ﻿using Cysharp.Threading.Tasks;
 using Manager;
+using StageState;
 using UnityEngine;
 using Utils;
 
@@ -28,14 +29,14 @@ namespace Controller
                 return;
             }
             
-            SendLog("<color=yellow>Player Attack</color>");
+            SendLog("Player Attack");
             var damage = playerData.Attack;
             await enemyController.TakeDamage(damage);
         }
         
         public override async UniTask DefendAsync(ControllerBase enemyController)
         {
-            SendLog("<color=yellow>Player Defend</color>");
+            SendLog("Player Defend");
             // 防御力を上げる処理
             
             // 適当にawait
@@ -45,12 +46,10 @@ namespace Controller
         public override async UniTask TakeDamage(int damage)
         {
             // damageを防御力で減らす
-            damage = damage - playerData.Defense > 0 
-                ? damage - playerData.Defense 
-                : 0;
+            damage = Mathf.Max(damage - CurrentParam.Defense, 0);
             CurrentParam.Hp -= damage;
 
-            SendLog($"<color=yellow>Player Take Damage: {damage}</color>");
+            SendLog($"Player Take Damage: {damage}");
             SendStatus(CurrentParam, true);
             
             if(CurrentParam.Hp <= 0)
@@ -59,7 +58,14 @@ namespace Controller
                 
                 // プレイヤーの死亡処理
                 SendLog("Player is Dead");
+                await DeadAsync();
             }
+        }
+
+        private static async UniTask DeadAsync()
+        {
+            // 終了処理を呼ぶ
+            await RpgGameManager.Instance.ChangeState(new GameOverState());
         }
     }
 }

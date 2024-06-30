@@ -1,4 +1,7 @@
 ﻿using Cysharp.Threading.Tasks;
+using DG.Tweening;
+using Manager;
+using StageState;
 using UnityEngine;
 using UnityEngine.UI;
 using Utils;
@@ -13,6 +16,9 @@ namespace Controller
         
         [SerializeField]
         private Image enemyIcon;
+        
+        [SerializeField]
+        private float fadeTime = 3f;
         
         private void Start()
         {
@@ -32,13 +38,13 @@ namespace Controller
                 return;
             }
             
-            SendLog("<color=red>Enemy Attack</color>");
+            SendLog("Enemy Attack");
             await playerController.TakeDamage(CurrentParam.Attack);
         }
         
         public override async UniTask DefendAsync(ControllerBase playerController)
         {
-            SendLog("<color=red>Enemy Defend</color>");
+            SendLog("Enemy Defend");
             // 防御力を上げる処理
             
             // 適当にawait
@@ -53,17 +59,32 @@ namespace Controller
                 : 0;
             CurrentParam.Hp -= damage;
             
-            SendLog($"<color=red>Enemy Take Damage: {damage}</color>");
+            SendLog($"Enemy Take Damage: {damage}");
             SendStatus(CurrentParam, false);
             
             if(CurrentParam.Hp <= 0)
             {
-                await UniTask.DelayFrame(1);
-                
-                SendLog("Enemy is Dead");
-                // 敵の死亡処理
-                Destroy(gameObject);
+                await DeadAsync();
             }
+        }
+        
+        private async UniTask DeadAsync()
+        {
+            await UniTask.DelayFrame(1);
+
+            // 徐々に透過させる
+            await enemyIcon
+                .DOFade(0f, fadeTime)
+                .SetLink(gameObject)
+                .AsyncWaitForCompletion();
+
+            SendLog("Enemy is Dead");
+            
+            // 終了処理を呼ぶ
+            await RpgGameManager.Instance.ChangeState(new GameClearState());
+            
+            // 敵の死亡処理
+            Destroy(gameObject);
         }
     }
 }

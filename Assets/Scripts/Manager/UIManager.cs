@@ -1,4 +1,7 @@
 ﻿using System;
+using System.Threading;
+using Cysharp.Threading.Tasks;
+using DG.Tweening;
 using Interface;
 using Manager.View;
 using TMPro;
@@ -13,6 +16,9 @@ namespace Manager
         : MonoBehaviour, IUIManager
     {
         public static UIManager Instance { get; private set; }
+
+        [SerializeField] 
+        private RectTransform buttonsRoot;
         
         [SerializeField] 
         private Button playerActionButton;
@@ -26,11 +32,19 @@ namespace Manager
         private Button healButton;
         public IObservable<Unit> OnClickHealButton => healButton.OnClickAsObservable().TakeUntilDestroy(this);
         
-        [SerializeField]private TMP_Text messageText;
-        [SerializeField]private TMP_Text stateText;
+        [SerializeField]
+        private TMP_Text messageText;
         
-        [SerializeField]private ParamInformationView playerParam;
-        [SerializeField]private ParamInformationView enemyParam;
+        [SerializeField]
+        private TMP_Text stateText;
+        
+        [SerializeField]
+        private ParamInformationView playerParam;
+        
+        [SerializeField]
+        private ParamInformationView enemyParam;
+        
+        private CancellationTokenSource _cancellationTokenSource;
         
         /// <summary>
         /// シングルトン化
@@ -41,6 +55,9 @@ namespace Manager
             {
                 Instance = this;
                 DontDestroyOnLoad(gameObject);
+                
+                // トークンの初期化
+                _cancellationTokenSource = new CancellationTokenSource();
             }
             else
             {
@@ -54,10 +71,38 @@ namespace Manager
             defenseButton.gameObject.SetActive(isActive);
             healButton.gameObject.SetActive(isActive);
         }
+
+        public void ShowButtonWithTween()
+        {
+            // // 移動
+            // buttonsRoot.DOAnchorPos(new Vector2(0, 0), 0.5f).SetLink(this.gameObject).SetEase(Ease.OutBack);
+            
+            // 回転
+            buttonsRoot
+                .DOLocalRotate(new Vector3(360f,0,0),0.6f, RotateMode.FastBeyond360)
+                .SetLink(this.gameObject)
+                .SetEase(Ease.OutCubic);
+            
+            // // 拡大
+            // buttonsRoot.localScale = Vector3.one * 0.2f;
+            // buttonsRoot
+            //     .DOScale(1f, 0.5f)
+            //     .SetLink(this.gameObject)
+            //     .SetEase(Ease.OutBack, 5f);
+        }
         
         public void SetLog(in string message)
         {
-            messageText.text = message;
+            // 文字送りをキャンセル
+            _cancellationTokenSource?.Cancel();
+            _cancellationTokenSource = new CancellationTokenSource();
+            
+            messageText
+                .ShowTypeWriteEffectAsync(
+                    message, 
+                    _cancellationTokenSource.Token
+                )
+                .Forget();
         }
         
         public void SetParam(in BaseParam player, in bool isPlayer)
@@ -70,6 +115,16 @@ namespace Manager
             {
                 enemyParam.SetParam(player);
             }
+        }
+        
+        public void SetState(in string state)
+        {
+            stateText.text = state;
+        }
+
+        private void OnDestroy()
+        {
+            _cancellationTokenSource?.Cancel();
         }
     }
 }

@@ -24,7 +24,7 @@ namespace MoveState
             _isPlayer = isPlayer;
         }
         
-        public async UniTask Enter()
+        public async UniTask EnterAsync()
         {
             Debug.Log("<color=cyan>DefenseState Enter</color>");
             if(_isPlayer)
@@ -51,12 +51,12 @@ namespace MoveState
             }
         }
 
-        public async UniTask Execute()
+        public async UniTask ExecuteAsync()
         {
             await UniTask.CompletedTask;
         }
 
-        public async UniTask Exit()
+        public async UniTask ExitAsync()
         {
             Debug.Log("<color=cyan>DefenseState Exit</color>");
             await UniTask.CompletedTask;
