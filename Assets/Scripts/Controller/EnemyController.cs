@@ -2,6 +2,7 @@
 using DG.Tweening;
 using Manager;
 using StageState;
+using UniRx;
 using UnityEngine;
 using UnityEngine.UI;
 using Utils;
@@ -31,6 +32,16 @@ namespace Controller
             enemyIcon.sprite = enemyData.Sprite;
             BaseParam = enemyData.BaseParam;
             CurrentParam = enemyData.BaseParam;
+            
+            // 購読処理
+            CurrentParam.HpRx
+                .Merge(CurrentParam.DefenseRx)
+                .TakeUntilDestroy(this)
+                .Subscribe(_ => 
+                {
+                    // パラメータが変更されたらステータスを更新
+                    SendStatus(CurrentParam, false);
+                });
             
             // パラメータ情報を表示
             SendStatus(enemyData.BaseParam, false);
@@ -62,10 +73,9 @@ namespace Controller
             damage = damage - CurrentParam.Defense > 0 
                 ? damage - CurrentParam.Defense 
                 : 0;
-            CurrentParam.Hp -= damage;
+            CurrentParam.SetHp(CurrentParam.Hp - damage);
             
             SendLog($"Enemy Take Damage: {damage}");
-            SendStatus(CurrentParam, false);
             
             // 受けたダメージをフロート表示
             RpgGameManager.Instance.ShowFloatingValue(-1 * damage, BaseParam.StatType.Hp, false);

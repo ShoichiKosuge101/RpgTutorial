@@ -105,15 +105,15 @@ namespace Manager
                 .Forget();
         }
         
-        public void SetParam(in BaseParam player, in bool isPlayer)
+        public void SetParam(in BaseParam currentParam, in bool isPlayer)
         {
             if(isPlayer)
             {
-                playerParam.SetParam(player);
+                playerParam.SetParam(currentParam);
             }
             else
             {
-                enemyParam.SetParam(player);
+                enemyParam.SetParam(currentParam);
             }
         }
         

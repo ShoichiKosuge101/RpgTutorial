@@ -1,8 +1,10 @@
-﻿using Controller.Interface;
+﻿using System;
+using Controller.Interface;
 using Cysharp.Threading.Tasks;
 using Manager;
 using UnityEngine;
 using Utils;
+using Random = UnityEngine.Random;
 
 namespace Controller
 {
@@ -54,7 +56,7 @@ namespace Controller
             if (IsDefend)
             {
                 // 既にバフがかかっていたらターン数とバフ値を更新
-                CurrentParam.Defense -= DefenseBuff;
+                CurrentParam.SetDefense(CurrentParam.Defense - DefenseBuff);
             }
             
             string textPattern = this is PlayerController 
@@ -67,7 +69,7 @@ namespace Controller
             RemainDefendTurn = 2;
             DefenseBuff = Random.Range(1, 4);
             
-            CurrentParam.Defense += DefenseBuff;
+            CurrentParam.SetDefense(CurrentParam.Defense + DefenseBuff);
             
             // パラメータ情報を表示
             SendStatus(CurrentParam, this is PlayerController);
@@ -88,7 +90,7 @@ namespace Controller
             // 回復処理
             // 回復力 + 1~3のランダム値
             int healVal = CurrentParam.HealPower + Random.Range(1, 4);
-            CurrentParam.Hp = Mathf.Min(CurrentParam.Hp + healVal, BaseParam.Hp);
+            CurrentParam.SetHp(Mathf.Min(CurrentParam.Hp + healVal, BaseParam.Hp));
             // パラメータ情報を表示
             SendStatus(CurrentParam, isPlayer);
 
@@ -146,7 +148,7 @@ namespace Controller
                 if(RemainDefendTurn <= 0)
                 {
                     IsDefend = false;
-                    CurrentParam.Defense -= DefenseBuff;
+                    CurrentParam.SetDefense(CurrentParam.Defense - DefenseBuff);
                     DefenseBuff = 0;
                     
                     SendLog("Defense Boost End");

@@ -1,6 +1,7 @@
 ﻿using Cysharp.Threading.Tasks;
 using Manager;
 using StageState;
+using UniRx;
 using UnityEngine;
 using Utils;
 
@@ -22,6 +23,16 @@ namespace Controller
         {
             BaseParam = playerData.BaseParam;
             CurrentParam = playerData.BaseParam;
+            
+            // 購読処理
+            CurrentParam.HpRx
+                .Merge(CurrentParam.DefenseRx)
+                .TakeUntilDestroy(this)
+                .Subscribe(_ => 
+                {
+                    // パラメータが変更されたらステータスを更新
+                    SendStatus(CurrentParam, true);
+                });
             
             // パラメータ情報を表示
             SendStatus(CurrentParam, true);
@@ -52,10 +63,9 @@ namespace Controller
         {
             // damageを防御力で減らす
             damage = Mathf.Max(damage - CurrentParam.Defense, 0);
-            CurrentParam.Hp -= damage;
+            CurrentParam.SetHp(CurrentParam.Hp - damage);
 
             SendLog($"Player Take Damage: {damage}");
-            SendStatus(CurrentParam, true);
             
             // 受けたダメージをフロート表示
             RpgGameManager.Instance.ShowFloatingValue(-1 * damage, BaseParam.StatType.Hp, true);
