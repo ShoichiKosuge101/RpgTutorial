@@ -2,6 +2,15 @@
 {
     public class BaseParam
     {
+        public enum StatType
+        {
+            Hp,
+            Attack,
+            Defense,
+            Speed,
+            HealPower
+        }
+        
         public int Hp { get; internal set; }
         public int Attack { get; internal set; }
         public int Defense { get; internal set; }

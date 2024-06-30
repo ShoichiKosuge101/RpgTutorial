@@ -72,6 +72,9 @@ namespace Controller
             // パラメータ情報を表示
             SendStatus(CurrentParam, this is PlayerController);
             
+            // 増えた防御力をフロート表示
+            RpgGameManager.Instance.ShowFloatingValue(DefenseBuff, BaseParam.StatType.Defense, this is PlayerController);
+            
             await UniTask.CompletedTask;
         }
         
@@ -93,6 +96,9 @@ namespace Controller
                 ? $"Player Heal: {healVal}" 
                 : $"Enemy Heal: {healVal}";
             SendLog($"{textPattern}");
+            
+            // 回復量をフロート表示
+            RpgGameManager.Instance.ShowFloatingValue(healVal, BaseParam.StatType.Hp, isPlayer);
 
             // 適当にawait
             if (isPlayer)

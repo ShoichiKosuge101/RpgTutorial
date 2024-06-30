@@ -151,6 +151,11 @@ namespace Manager
             UIManager.Instance.SetState(currentState);
         }
         
+        public void ShowFloatingValue(int paramValue, BaseParam.StatType statType, bool isPlayer)
+        {
+            UIManager.Instance.ShowFloatingValue(paramValue, statType, isPlayer);
+        }
+        
         public void IncrementTurnCount()
         {
             _turnCount++;

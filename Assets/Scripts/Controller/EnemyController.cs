@@ -67,6 +67,9 @@ namespace Controller
             SendLog($"Enemy Take Damage: {damage}");
             SendStatus(CurrentParam, false);
             
+            // 受けたダメージをフロート表示
+            RpgGameManager.Instance.ShowFloatingValue(-1 * damage, BaseParam.StatType.Hp, false);
+            
             // HPが0以下になったら死亡処理
             if(CurrentParam.Hp <= 0)
             {

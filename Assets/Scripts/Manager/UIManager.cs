@@ -126,5 +126,23 @@ namespace Manager
         {
             _cancellationTokenSource?.Cancel();
         }
+        
+        /// <summary>
+        /// フローティングテキストを表示
+        /// </summary>
+        /// <param name="paramValue"></param>
+        /// <param name="statType"></param>
+        /// <param name="isPlayer"></param>
+        public void ShowFloatingValue(int paramValue, BaseParam.StatType statType, bool isPlayer)
+        {
+            if(isPlayer)
+            {
+                playerParam.ShowFloatingText(paramValue, statType).Forget();
+            }
+            else
+            {
+                enemyParam.ShowFloatingText(paramValue, statType).Forget();
+            }
+        }
     }
 }
